@@ -16,8 +16,7 @@
     },
     "require": {
         "silverstripe/framework": "^4.0",
-        "silverstripe/cms": "^4.0",
-        "seppzzz/htmlpurifier": "~2.0"
+        "silverstripe/cms": "^4.0"
     },
     "minimum-stability": "dev",
     "prefer-stable": true
