@@ -20,7 +20,7 @@ For SilverStripe >3.1 & <4.0 usage please referr to version 4.x.
 
 Install the module through [composer](http://getcomposer.org):
 
-    composer require g4b0/searchable-dataobjects
+    composer require seppzzz/searchable-dataobjects
     composer update
 
 Make the DataObject (or Pages) implement Searchable interface (you need to implement Link(), getSearchFilter(), getTitleFields(),
