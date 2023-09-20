@@ -1,0 +1,6 @@
+---
+Name: searchable-dataobjects-extensions
+---
+SilverStripe\CMS\Controllers\ContentController:
+  extensions:
+    - seppzzz\SearchableDataObjects\MyCustomSearch

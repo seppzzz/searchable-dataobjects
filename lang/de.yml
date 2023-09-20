@@ -1,0 +1,13 @@
+de:
+  CustomSearch:
+    SEARCHRESULTS: Diese Seite durchsuchen
+    GO: Los
+    SEARCH: DEINE SUCHE
+  SearchForm:
+    GO: SUCHEN
+    SEARCH: DEINE SUCHE
+    SearchResults: 'Suchergebnisse'
+  SearchResults:
+    NoResult: Ihre Suche nach &quot;{query}&quot; lieferte keine Treffer!
+    YesResult: Die Suche nach &quot;{query}&quot; liefert {count} Treffer:
+    More: Lesen Sie mehr über {more} &nbsp;...
