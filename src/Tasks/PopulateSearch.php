@@ -11,6 +11,7 @@ use SilverStripe\Dev\BuildTask;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DB;
 use SilverStripe\Versioned\Versioned;
+use SilverStripe\View\Parsers\ShortcodeParser;
 
 use SilverStripe\Dev\Debug;
 use SilverStripe\Dev\Backtrace;
@@ -59,6 +60,14 @@ class PopulateSearch extends BuildTask
         });
         ClassInfo::reset_db_cache();
     }
+	
+	public static function parseContent($content)
+    {
+        $shortcodeParser = ShortcodeParser::get('default');
+        $parsedContent = $shortcodeParser->parse($content);
+
+        return $parsedContent;
+    }
 
     /**
      * Refactor the DataObject in order to match with SearchableDataObjects table
@@ -78,7 +87,11 @@ class PopulateSearch extends BuildTask
         foreach ($do->getContentFields() as $field) {
             $Content .= Purifier::PurifyTXT($do->$field). ' ';
         }
-        self::storeData($do->ID, $do->ClassName, trim($Title), trim($Content));
+		
+		$Content = self::parseContent($Content);
+		
+		
+        self::storeData($do->ID, $do->ClassName, trim($Title), strip_tags(trim($Content)));
     }
 
     /**
@@ -88,12 +101,16 @@ class PopulateSearch extends BuildTask
     public static function insertPage(Page $p)
     {
         
-		//Debug::show($p);
+		//Debug::dump($p->Content);
 		
 		$Content = Purifier::PurifyTXT($p->Content);
         $Content = Purifier::RemoveEmbed($Content);
+		
+		//Debug::dump($Content);
+		
+		$Content = self::parseContent($Content);
 
-        self::storeData($p->ID, $p->ClassName, $p->Title, $Content);
+        self::storeData($p->ID, $p->ClassName, $p->Title, strip_tags($Content));
     }
 
     /**
