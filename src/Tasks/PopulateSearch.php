@@ -12,6 +12,9 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DB;
 use SilverStripe\Versioned\Versioned;
 
+use SilverStripe\Dev\Debug;
+use SilverStripe\Dev\Backtrace;
+
 /**
  * Ricrea la tabella di ricerca ad ogni esecuzione, e la popola con i dati
  * prelevati dai DataObject
@@ -84,7 +87,10 @@ class PopulateSearch extends BuildTask
      */
     public static function insertPage(Page $p)
     {
-        $Content = Purifier::PurifyTXT($p->Content);
+        
+		//Debug::show($p);
+		
+		$Content = Purifier::PurifyTXT($p->Content);
         $Content = Purifier::RemoveEmbed($Content);
 
         self::storeData($p->ID, $p->ClassName, $p->Title, $Content);
@@ -100,17 +106,32 @@ class PopulateSearch extends BuildTask
 
     private static function storeData($id, $class_name, $title, $content)
     {
-        // prepare the query ...
-        $query = sprintf(
+        
+		// prepare the query ...
+        /*$query = sprintf(
             'REPLACE INTO `SearchableDataObjects`
-                (`ID`,  `ClassName`, `Title`, `Content`)
+                (`ObjectID`,  `ClassName`, `Title`, `Content`)
              VALUES
                 (%1$d, \'%2$s\', \'%3$s\', \'%4$s\')',
             intval($id),
             Convert::raw2sql($class_name),
             Convert::raw2sql($title),
             Convert::raw2sql($content)
-        );
+        );*/
+		
+		$query = sprintf(
+			'INSERT INTO `SearchableDataObjects`
+				(`ObjectID`, `ClassName`, `Title`, `Content`)
+			 VALUES
+				(%1$d, \'%2$s\', \'%3$s\', \'%4$s\')
+			 ON DUPLICATE KEY UPDATE
+				`Title` = \'%3$s\',
+				`Content` = \'%4$s\'',
+			intval($id),
+			Convert::raw2sql($class_name),
+			Convert::raw2sql($title),
+			Convert::raw2sql($content)
+		);
 
         // run query ...
         DB::query($query);
@@ -129,6 +150,9 @@ class PopulateSearch extends BuildTask
          * Page
          */
         $pages = Versioned::get_by_stage('Page', 'Live')->filter(array('ShowInSearch' => 1));
+		
+		//Debug::show($pages);
+		
         foreach ($pages as $p) {
             self::insertPage($p);
         }

@@ -9,6 +9,9 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DB;
 use SilverStripe\Versioned\Versioned;
 
+use SilverStripe\Dev\Debug;
+use SilverStripe\Dev\Backtrace;
+
 /**
  * SearchableDataObject - extension that let the DO to auto update the search table
  * after a write
@@ -23,7 +26,7 @@ class SearchableDataObject extends DataExtension
     {
         $id = $do->ID;
         $class = $do->getClassName();
-        DB::query("DELETE FROM \"SearchableDataObjects\" WHERE ID=$id AND ClassName='$class'");
+        DB::query("DELETE FROM \"SearchableDataObjects\" WHERE ObjectID=$id AND ClassName='$class'");
     }
 
     public function onAfterWrite()
@@ -46,10 +49,14 @@ class SearchableDataObject extends DataExtension
                 $this->deleteDo($this->owner);
             }
         } elseif ($this->owner instanceof Page) { // Page is versioned but usually doesn't implement Searchable
+			
             $page = Versioned::get_by_stage('Page', 'Live')->filter(array(
                 'ID' => $this->owner->ID,
                 'ShowInSearch' => 1,
             ))->first();
+			
+			//Debug::show($page);
+			
             if ($page) {
                 PopulateSearch::insertPage($page);
             } else {
@@ -79,17 +86,34 @@ class SearchableDataObject extends DataExtension
 		$isMySQL = ($connection->getDatabaseServer() === 'mysql');
 		$unsigned = ($isMySQL) ? 'unsigned' : '';
 		$engine = ($isMySQL) ? 'MyISAM' : 'MyISAM'; // Change the storage engine here // InnoDB
-
+		
+		
 		$sql = join(' ', [
 			'CREATE TABLE IF NOT EXISTS "SearchableDataObjects" (',
-			'"ID" int(10) ' . $unsigned . ' NOT NULL,',
+			'"ID" int(10) ' . $unsigned . ' NOT NULL AUTO_INCREMENT,',
+			'"ClassName" varchar(255) character set utf8mb4 collate utf8mb4_unicode_ci,',
+			'"Title" varchar(255) character set utf8mb4 collate utf8mb4_unicode_ci NOT NULL,',
+			'"Content" mediumtext character set utf8mb4 collate utf8mb4_unicode_ci NOT NULL,',
+			'"ObjectID" int(11) not null default \'0\',',
+			'PRIMARY KEY("ID"),',
+			'UNIQUE KEY `unique_object_class` ("ObjectID", "ClassName"(191))', // Specify length for ClassName
+			') ENGINE=' . $engine,
+		]);
+
+		
+		
+		
+
+		/*$sql = join(' ', [
+			'CREATE TABLE IF NOT EXISTS "SearchableDataObjects" (',
+			'"ID" int(10) ' . $unsigned . ' NOT NULL AUTO_INCREMENT,',
 			'"ClassName" ' . $schema->varchar(['precision' => 255]) . ',',
 			'"Title" ' . $schema->varchar(['precision' => 255]) . ' NOT NULL,',
 			'"Content" ' . $schema->text([]) . ' NOT NULL,',
-			'"PageID" ' . $schema->int(['precision' => 11, 'null' => 'NOT NULL', 'default' => 0]) . ',',
+			'"ObjectID" ' . $schema->int(['precision' => 11, 'null' => 'NOT NULL', 'default' => 0]) . ',',
 			'PRIMARY KEY("ID")', // Remove "ClassName" from the primary key
 			') ENGINE=' . $engine, // Specify the chosen storage engine
-		]);
+		]);*/
 		
 		
 		
