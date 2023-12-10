@@ -342,7 +342,7 @@ class MyCustomSearch extends Extension
 		$result->removeDuplicates('ID');
 		
 		foreach ($result as $row) {
-            $do = DataObject::get_by_id($row->ClassName, $row->ID);
+            $do = DataObject::get_by_id($row->ClassName, $row->ObjectID);
 			
             if (is_object($do) && $do->exists() ) {
 				
