@@ -85,13 +85,14 @@ class PopulateSearch extends BuildTask
         // Content
         $Content = '';
         foreach ($do->getContentFields() as $field) {
-            $Content .= Purifier::PurifyTXT($do->$field). ' ';
+			$c = self::parseContent($do->$field);
+            $Content .= Purifier::PurifyTXT($c). ' ';
         }
 		
 		$Content = self::parseContent($Content);
 		
 		
-        self::storeData($do->ID, $do->ClassName, trim($Title), strip_tags(trim($Content)));
+        self::storeData($do->ID, $do->ClassName, trim($Title), trim($Content));
     }
 
     /**
@@ -101,16 +102,14 @@ class PopulateSearch extends BuildTask
     public static function insertPage(Page $p)
     {
         
-		//Debug::dump($p->Content);
+		//$Content = Purifier::PurifyTXT($p->Content);
+        //$Content = Purifier::RemoveEmbed($Content);
 		
-		$Content = Purifier::PurifyTXT($p->Content);
+		$Content = self::parseContent($p->Content);
+		$Content = Purifier::PurifyTXT($Content);
         $Content = Purifier::RemoveEmbed($Content);
-		
-		//Debug::dump($Content);
-		
-		$Content = self::parseContent($Content);
 
-        self::storeData($p->ID, $p->ClassName, $p->Title, strip_tags($Content));
+        self::storeData($p->ID, $p->ClassName, $p->Title, $Content);
     }
 
     /**
