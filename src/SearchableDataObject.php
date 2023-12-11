@@ -85,7 +85,8 @@ class SearchableDataObject extends DataExtension
 		$schema = DB::get_schema();
 		$isMySQL = ($connection->getDatabaseServer() === 'mysql');
 		$unsigned = ($isMySQL) ? 'unsigned' : '';
-		$engine = ($isMySQL) ? 'MyISAM' : 'MyISAM'; // Change the storage engine here // InnoDB
+		//$engine = ($isMySQL) ? 'MyISAM' : 'MyISAM'; // Change the storage engine here // InnoDB
+		$engine = 'InnoDB';
 		
 		
 		$sql = join(' ', [
